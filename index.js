@@ -20,10 +20,10 @@ For more information call at:
 👍  053-325-7933 Sharon
 👍  052-411-9239 Lee`
 
-const fendStart = () =>{
+// const fendStart = () =>{
 
-    return bot.sendMessage('758908983', 'jjjjjjjjjjjjjjjjjj')
-}
+//     return bot.sendMessage('758908983', 'jjjjjjjjjjjjjjjjjj')
+// }
 
 
 const start=()=>{
