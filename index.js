@@ -1,5 +1,7 @@
 const TelegramApi = require('node-telegram-bot-api')
 const token = '5339603180:AAHw6NfNe6xD5YGSB8NBx6Rba8fH3MxCZcc'
+const UserModel = require('./models')
+const sequelize = require('./db')
 
 const bot = new TelegramApi(token, {polling:true})
 
@@ -70,7 +72,18 @@ For more information call at:
 // }
 
 
-const start=()=>{
+const start= async()=>{
+
+    try{
+        await sequelize.authenticate()
+        await sequelize.sync({force: true})
+
+
+
+    }
+    catch(e){
+        console.log('Не работает',e)
+    }
 
     bot.setMyCommands([
         {command:'/start', description:'start'},
@@ -82,26 +95,42 @@ const start=()=>{
 
     bot.on('message',async(msg)=>{
 
-        const text = msg.text
-        const chatId=msg.chat.id        
-
-        if(text==='/start'){
-            return bot.sendMessage(chatId, `ок договорились ${text}`)
-
+console.log(msg)
+        try{
+         
+            const text = msg.text
+            const chatId=msg.chat.id   
+            const first_name=msg.chat.first_name  
+               
+    
+            if(text==='/start'){
+              const user =  await UserModel.create({chatId})
+                await user.save({ first_name: first_name });
+                return bot.sendMessage(chatId, `ок договорились ${text}`)
+    
+            }
+    
+            if(text==='/saturday'){
+                return bot.sendMessage(chatId, `${s}`)
+    
+            }
+    
+    
+            if(text==='/monday'){
+                return bot.sendMessage(chatId, `${m}`)
+    
+            }
+    
+            return bot.sendMessage(chatId, `Не понял вопрос`)
+    
+    
         }
-
-        if(text==='/saturday'){
-            return bot.sendMessage(chatId, `${s}`)
-
+        catch(e){
+            console.log('Не работает',e)
         }
+    
 
-
-        if(text==='/monday'){
-            return bot.sendMessage(chatId, `${m}`)
-
-        }
-
-        return bot.sendMessage(chatId, `Не понял вопрос`)
+        
 
     })
 }
