@@ -1,5 +1,4 @@
 const {Sequelize} = require('sequelize')
-
 module.exports = new Sequelize(
     'telegram_bot',
     'telegramBot',
@@ -9,5 +8,4 @@ module.exports = new Sequelize(
         port: '5432',
         dialect: 'postgres'
     }
-
 )

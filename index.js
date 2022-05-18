@@ -2,11 +2,7 @@ const TelegramApi = require('node-telegram-bot-api')
 const token = '5339603180:AAHw6NfNe6xD5YGSB8NBx6Rba8fH3MxCZcc'
 const UserModel = require('./models')
 const sequelize = require('./db')
-
-const bot = new TelegramApi(token, {polling:true})
-
-
-
+const bot = new TelegramApi(token, {polling: true})
 const s = `Saturday night in Holon starts at 20:00 starting with 5,000 playing chips + 2,500 Bonus
 ✔ For those who arriving to the end of level 4
 ✔ Re-entry ₪100 with 10,000 playing chips
@@ -21,8 +17,7 @@ const s = `Saturday night in Holon starts at 20:00 starting with 5,000 playing c
 For more information call at:
 👍  053-325-7933 Sharon
 👍  052-411-9239 Lee`
-
-const m =`
+const m = `
 Poker Tournament at ClubESOP
  
 5,000 Guarantee
@@ -65,76 +60,78 @@ For more information call at:
 *0508471916*
 
 `
-
 // const fendStart = () =>{
-
 //     return bot.sendMessage('758908983', 'jjjjjjjjjjjjjjjjjj')
 // }
-
-
-const start= async()=>{
-
-    try{
+const start = async () => {
+    try {
         await sequelize.authenticate()
-        await sequelize.sync({force: true})
-
-
-
+        await sequelize.sync()
+    } catch (e) {
+        console.log('No working', e)
     }
-    catch(e){
-        console.log('Не работает',e)
+    bot.on('start', async (msg) => {
+    })
+    const ggg = (msg) => {
+        if (msg.chat.id === 758908983) {
+            bot.setMyCommands([
+                {command: '/start', description: 'start'},
+                {command: '/saturday', description: 'Saturday'},
+                {command: '/sunday', description: 'Sunday'},
+                {command: '/monday', description: 'Monday'},
+                {command: '/get', description: 'Get'},
+            ])
+        } else {
+            bot.setMyCommands([
+                {command: '/start', description: 'start'},
+                {command: '/saturday', description: 'Saturday'},
+                {command: '/sunday', description: 'Sunday'},
+                {command: '/monday', description: 'Monday'},
+            ])
+        }
     }
-
-    bot.setMyCommands([
-        {command:'/start', description:'start'},
-        {command:'/saturday', description:'Saturday'},
-        {command:'/sunday', description:'Sunday'}, 
-        {command:'/monday', description:'Monday'}, 
-    ])
-
-
-    bot.on('message',async(msg)=>{
-
-console.log(msg)
-        try{
-         
+    bot.on('message', async (msg) => {
+        try {
+            ggg(msg)
             const text = msg.text
-            const chatId=msg.chat.id   
-            const first_name=msg.chat.first_name  
-               
-    
-            if(text==='/start'){
-              const user =  await UserModel.create({chatId})
-                await user.save({ first_name: first_name });
-                return bot.sendMessage(chatId, `ок договорились ${text}`)
-    
+            const chatId = msg.chat.id
+            const first_name = msg.chat.first_name
+            if (text === '/start') {
+                await UserModel.create({chatId: chatId, first_name: first_name}).then(res => {
+                })
+                return bot.sendMessage(chatId, `We welcome you ${first_name}`)
             }
-    
-            if(text==='/saturday'){
+            if (text === '/saturday') {
                 return bot.sendMessage(chatId, `${s}`)
-    
             }
-    
-    
-            if(text==='/monday'){
+            if (text === '/get') {
+                await UserModel.findAll({
+                    attributes: ['chatId'],
+                }).then((der) => {
+                    der.map(i => {
+                        bot.sendMessage(i.dataValues.chatId, `${text}`)
+                    })
+                })
+            }
+            if (text.includes('alert')) {
+                await UserModel.findAll({
+                    attributes: ['chatId'],
+                }).then((der) => {
+                    der.map(i => {
+                        bot.sendMessage(i.dataValues.chatId, `${text}`)
+                    })
+                })
+                return false
+            }
+            if (text === '/monday') {
                 return bot.sendMessage(chatId, `${m}`)
-    
             }
-    
-            return bot.sendMessage(chatId, `Не понял вопрос`)
-    
-    
+            return bot.sendMessage(chatId, `Sorry I didn't understand the question`)
+        } catch (e) {
+            console.log('Не работает', e)
         }
-        catch(e){
-            console.log('Не работает',e)
-        }
-    
-
-        
-
     })
 }
-
 start()
 
 
